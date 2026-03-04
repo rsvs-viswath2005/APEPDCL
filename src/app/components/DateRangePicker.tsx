@@ -61,43 +61,43 @@ export function DateRangePicker({ startDate, endDate, onDateChange }: DateRangeP
 
   return (
     <div className="relative" ref={popoverRef}>
-      <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2">
+      <div className="glass-card flex items-center gap-2 rounded-xl px-2 sm:px-4 py-2">
         <button
           onClick={() => adjustDays(-1)}
-          className="p-1 hover:bg-gray-200 rounded transition-colors"
+          className="glass-pill p-1.5 hover:bg-white/90 transition-colors"
           title="Previous day"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+          <ChevronLeft className="w-5 h-5 text-slate-600" />
         </button>
         
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3 py-1 hover:bg-gray-200 rounded transition-colors"
+          className="glass-pill flex items-center gap-2 px-3 py-1.5 hover:bg-white/90 transition-colors"
         >
-          <span className="text-gray-700 font-medium whitespace-nowrap">
+          <span className="text-slate-700 font-semibold whitespace-nowrap text-sm sm:text-base">
             {formatDateRange(startDate, endDate)}
           </span>
-          <Calendar className="w-5 h-5 text-gray-600" />
+          <Calendar className="w-5 h-5 text-slate-600" />
         </button>
         
         <button
           onClick={() => adjustDays(1)}
-          className="p-1 hover:bg-gray-200 rounded transition-colors"
+          className="glass-pill p-1.5 hover:bg-white/90 transition-colors"
           title="Next day"
         >
-          <ChevronRight className="w-5 h-5 text-gray-600" />
+          <ChevronRight className="w-5 h-5 text-slate-600" />
         </button>
       </div>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50">
+        <div className="absolute right-0 top-full mt-2 glass-card rounded-2xl p-4 z-50 max-w-[92vw]">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Select Date Range</h3>
+            <h3 className="font-semibold text-slate-900">Select Date Range</h3>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
+              className="glass-pill p-1.5 transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-slate-500" />
             </button>
           </div>
           
@@ -109,14 +109,14 @@ export function DateRangePicker({ startDate, endDate, onDateChange }: DateRangeP
             className="date-picker-custom"
           />
           
-          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
+          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-200/70">
             <button
               onClick={() => {
                 const today = new Date();
                 onDateChange(today, today);
                 setIsOpen(false);
               }}
-              className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="glass-pill px-4 py-2 text-sm"
             >
               Today
             </button>
@@ -128,7 +128,7 @@ export function DateRangePicker({ startDate, endDate, onDateChange }: DateRangeP
                 onDateChange(lastWeek, today);
                 setIsOpen(false);
               }}
-              className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="glass-pill px-4 py-2 text-sm"
             >
               Last 7 Days
             </button>
@@ -140,7 +140,7 @@ export function DateRangePicker({ startDate, endDate, onDateChange }: DateRangeP
                 onDateChange(lastMonth, today);
                 setIsOpen(false);
               }}
-              className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="glass-pill px-4 py-2 text-sm"
             >
               Last 30 Days
             </button>

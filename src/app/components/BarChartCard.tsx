@@ -48,9 +48,9 @@ const PercentageLabel = (props: any) => {
 
 export function BarChartCard({ title, data, bars }: BarChartCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <div className="bg-gray-100 rounded-lg px-4 py-2 mb-6 inline-block">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="glass-card rounded-2xl p-4 sm:p-6">
+      <div className="glass-pill rounded-lg px-4 py-2 mb-6 inline-block">
+        <h3 className="text-lg font-extrabold tracking-tight text-slate-900">{title}</h3>
       </div>
       
       <ResponsiveContainer width="100%" height={320}>
@@ -75,7 +75,7 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
           <Bar 
             dataKey="dailyConsumption" 
             stackId="a" 
-            fill="#d8b4fe"
+            fill="#67e8f9"
             radius={[0, 0, 0, 0]}
           >
             <LabelList 
@@ -86,7 +86,7 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
           <Bar 
             dataKey="peakShifted" 
             stackId="a" 
-            fill="#9333ea"
+            fill="#0ea5e9"
             radius={[8, 8, 0, 0]}
           >
             <LabelList 
@@ -101,12 +101,12 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
       
       <div className="flex items-center justify-center gap-8 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#d8b4fe] rounded"></div>
-          <span className="text-sm text-gray-600">Daily consumption %</span>
+          <div className="w-12 h-3 bg-[#67e8f9] rounded"></div>
+          <span className="text-sm text-slate-600">Daily consumption %</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#9333ea] rounded"></div>
-          <span className="text-sm text-gray-600">Peak Shifted %</span>
+          <div className="w-12 h-3 bg-[#0ea5e9] rounded"></div>
+          <span className="text-sm text-slate-600">Peak Shifted %</span>
         </div>
       </div>
     </div>

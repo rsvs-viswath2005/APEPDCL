@@ -9,8 +9,8 @@ interface PieChartCardProps {
 
 export function PieChartCard({ title, data, colors, centerText }: PieChartCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="glass-card rounded-2xl p-4 sm:p-6">
+      <h3 className="text-lg font-extrabold tracking-tight text-slate-900 mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -32,7 +32,7 @@ export function PieChartCard({ title, data, colors, centerText }: PieChartCardPr
         </PieChart>
       </ResponsiveContainer>
       {centerText && (
-        <p className="text-center text-gray-600 text-sm mt-2">{centerText}</p>
+        <p className="text-center text-slate-600 text-sm mt-2">{centerText}</p>
       )}
     </div>
   );

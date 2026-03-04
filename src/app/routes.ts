@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { Overview } from './pages/Overview';
-import { Industrial } from './pages/Industrial';
+import { Monitor } from './pages/Industrial';
 import { Tariff } from './pages/Tariff';
 
 export const router = createBrowserRouter([
@@ -9,8 +9,16 @@ export const router = createBrowserRouter([
     Component: Overview,
   },
   {
+    path: '/monitor',
+    Component: Monitor,
+  },
+  {
     path: '/industrial',
-    Component: Industrial,
+    Component: Monitor,
+  },
+  {
+    path: '/stats/:serviceNo',
+    Component: Tariff,
   },
   {
     path: '/tariff',

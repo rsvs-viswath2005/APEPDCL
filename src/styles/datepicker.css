@@ -1,8 +1,8 @@
 /* Custom styles for react-day-picker */
 .date-picker-custom {
   --rdp-cell-size: 40px;
-  --rdp-accent-color: #6366f1;
-  --rdp-background-color: #e0e7ff;
+  --rdp-accent-color: #0ea5e9;
+  --rdp-background-color: #dff6ff;
   font-family: inherit;
 }
 
@@ -69,19 +69,19 @@
 }
 
 .date-picker-custom .rdp-day_selected {
-  background-color: #6366f1;
+  background-color: #0ea5e9;
   color: white;
   font-weight: 600;
 }
 
 .date-picker-custom .rdp-day_selected:hover {
-  background-color: #4f46e5;
+  background-color: #0284c7;
 }
 
 .date-picker-custom .rdp-day_today:not(.rdp-day_selected) {
   font-weight: 600;
-  color: #6366f1;
-  background-color: #e0e7ff;
+  color: #0284c7;
+  background-color: #dff6ff;
 }
 
 .date-picker-custom .rdp-day_outside {
@@ -95,11 +95,11 @@
 
 .date-picker-custom .rdp-day_range_start,
 .date-picker-custom .rdp-day_range_end {
-  background-color: #6366f1;
+  background-color: #0ea5e9;
   color: white;
 }
 
 .date-picker-custom .rdp-day_range_middle {
-  background-color: #e0e7ff;
-  color: #6366f1;
+  background-color: #dff6ff;
+  color: #0284c7;
 }

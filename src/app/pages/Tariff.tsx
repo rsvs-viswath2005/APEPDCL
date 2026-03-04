@@ -1,75 +1,213 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router';
+import { Clock } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { StatCard } from '../components/StatCard';
 import { TariffChart } from '../components/TariffChart';
-import { ShiftHistoryTable } from '../components/ShiftHistoryTable';
-import { Clock } from 'lucide-react';
+import { ShiftHistoryTable, type ShiftEntry } from '../components/ShiftHistoryTable';
+
+function seededNumber(seed: string, min: number, max: number) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) % 1000003;
+  }
+  const fraction = (Math.sin(hash) + 1) / 2;
+  return min + (max - min) * fraction;
+}
+
+function formatDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export function Tariff() {
-  // Consumption Chart Data
-  const consumptionData = [
-    { hour: 0, baseline: 35, actual: 30 },
-    { hour: 1, baseline: 12, actual: 10 },
-    { hour: 2, baseline: 18, actual: 15 },
-    { hour: 3, baseline: 28, actual: 22 },
-    { hour: 4, baseline: 30, actual: 24 },
-    { hour: 5, baseline: 15, actual: 12 },
-    { hour: 6, baseline: 22, actual: 20 },
-    { hour: 7, baseline: 25, actual: 35 },
-    { hour: 8, baseline: 28, actual: 40 },
-    { hour: 9, baseline: 26, actual: 32 },
-    { hour: 10, baseline: 24, actual: 28 },
-    { hour: 11, baseline: 23, actual: 25 },
-    { hour: 12, baseline: 22, actual: 22 },
-    { hour: 13, baseline: 20, actual: 21 },
-    { hour: 14, baseline: 18, actual: 23 },
-    { hour: 15, baseline: 19, actual: 26 },
-    { hour: 16, baseline: 21, actual: 28 },
-    { hour: 17, baseline: 25, actual: 30 },
-    { hour: 18, baseline: 28, actual: 38 },
-    { hour: 19, baseline: 30, actual: 42 },
-    { hour: 20, baseline: 26, actual: 35 },
-    { hour: 21, baseline: 20, actual: 22 },
-    { hour: 22, baseline: 15, actual: 12 },
-    { hour: 23, baseline: 10, actual: 5 },
-  ];
+  const { serviceNo = 'UNKNOWN' } = useParams();
+  const [searchParams] = useSearchParams();
+  const consumerName = searchParams.get('consumerName') ?? `Consumer ${serviceNo}`;
+  const category = searchParams.get('category') ?? 'NA';
+  const [selectedDateKey, setSelectedDateKey] = useState(() => formatDateKey(new Date()));
+  const [isLoading, setIsLoading] = useState(false);
+  const [pendingDateKey, setPendingDateKey] = useState<string | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const loaderTimeoutRef = useRef<number | null>(null);
 
-  // Shift History Data
-  const shiftHistory = [
-    { date: '2025-06-04', time: '08:30 PM', shiftedPercent: '19%', value: 128, points: 250 },
-    { date: '2025-06-03', time: '06:00 PM', shiftedPercent: '20%', value: 145, points: 310 },
-    { date: '2025-06-05', time: '08:45 AM', shiftedPercent: '22%', value: 148, points: 370 },
-  ];
+  useEffect(() => {
+    return () => {
+      if (loaderTimeoutRef.current) {
+        window.clearTimeout(loaderTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleShiftDateSelect = (dateKey: string) => {
+    if (isLoading || dateKey === selectedDateKey) return;
+
+    headerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsLoading(true);
+    setPendingDateKey(dateKey);
+
+    if (loaderTimeoutRef.current) {
+      window.clearTimeout(loaderTimeoutRef.current);
+    }
+
+    loaderTimeoutRef.current = window.setTimeout(() => {
+      setSelectedDateKey(dateKey);
+      setPendingDateKey(null);
+      setIsLoading(false);
+    }, 450);
+  };
+
+  const selectedDate = useMemo(() => {
+    const date = new Date(`${selectedDateKey}T00:00:00`);
+    return {
+      dayLabel: date.toLocaleDateString('en-IN', { weekday: 'short' }),
+      dateLabel: date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+    };
+  }, [selectedDateKey]);
+
+  const stats = useMemo(() => {
+    const seedBase = `${serviceNo}-${selectedDateKey}`;
+    const totalUnitsSaved = Math.round(seededNumber(`${seedBase}-total-units`, 420, 980));
+    const totalCostSaved = Math.round(seededNumber(`${seedBase}-total-cost`, 14000, 55000));
+    const morningUnits = Math.round(totalUnitsSaved * seededNumber(`${seedBase}-morning`, 0.24, 0.38));
+    const eveningUnits = Math.round(totalUnitsSaved * seededNumber(`${seedBase}-evening`, 0.12, 0.24));
+    const morningCost = Math.round((totalCostSaved * morningUnits) / totalUnitsSaved);
+    const eveningCost = Math.round((totalCostSaved * eveningUnits) / totalUnitsSaved);
+
+    return {
+      totalUnitsSaved,
+      totalCostSaved,
+      morningUnits,
+      eveningUnits,
+      morningCost,
+      eveningCost,
+    };
+  }, [selectedDateKey, serviceNo]);
+
+  const consumptionData = useMemo(() => {
+    const seedBase = `${serviceNo}-${selectedDateKey}`;
+    const peakBoost = seededNumber(`${seedBase}-peak`, 8, 18);
+    const dayBias = seededNumber(`${seedBase}-bias`, -4, 4);
+
+    return Array.from({ length: 24 }, (_, hour) => {
+      const morningPeak = hour >= 6 && hour <= 9 ? peakBoost : 0;
+      const eveningPeak = hour >= 18 && hour <= 21 ? peakBoost + 4 : 0;
+      const baseline = Math.max(
+        8,
+        Math.round(
+          16 +
+            Math.sin(hour / 3) * 7 +
+            seededNumber(`${seedBase}-base-${hour}`, -3, 3) +
+            dayBias
+        )
+      );
+      const actual = Math.max(
+        5,
+        Math.round(
+          baseline -
+            seededNumber(`${seedBase}-actual-${hour}`, 1, 5) +
+            morningPeak / 5 +
+            eveningPeak / 5
+        )
+      );
+
+      return { hour, baseline, actual };
+    });
+  }, [selectedDateKey, serviceNo]);
+
+  const shiftHistory = useMemo<ShiftEntry[]>(() => {
+    const today = new Date();
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - index);
+      const dateKey = formatDateKey(date);
+      const seedBase = `${serviceNo}-${dateKey}-shift`;
+      const hour = Math.round(seededNumber(`${seedBase}-hour`, 6, 20));
+      const minute = seededNumber(`${seedBase}-minute`, 0, 1) > 0.5 ? '30' : '00';
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const shiftedValue = Math.round(seededNumber(`${seedBase}-value`, 95, 190));
+      const shiftedPercent = `${Math.round(seededNumber(`${seedBase}-percent`, 12, 28))}%`;
+      const points = Math.round(seededNumber(`${seedBase}-points`, 140, 420));
+
+      return {
+        dateKey,
+        date: date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: '2-digit' }),
+        time: `${String(((hour - 1) % 12) + 1).padStart(2, '0')}:${minute} ${period}`,
+        shiftedPercent,
+        value: shiftedValue,
+        points,
+      };
+    });
+  }, [serviceNo]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="dashboard-page">
       <Navbar />
-      
-      <div className="max-w-[1440px] mx-auto px-8 py-8">
-        {/* Top Banner */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-6 mb-8 text-white">
-          <div className="flex items-center gap-3 mb-2">
+
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 relative z-10">
+        <div ref={headerRef} className="glass-hero rounded-2xl p-6 mb-8 text-white">
+          <p className="text-sm md:text-base text-sky-100">Welcome</p>
+          <h1 className="text-2xl md:text-3xl font-bold mt-1">{consumerName}</h1>
+          <p className="text-sm md:text-base text-sky-100 mt-1">
+            Service No: {serviceNo} | Category: {category}
+          </p>
+          <div className="flex items-center gap-3 mt-5 mb-2">
             <Clock className="w-6 h-6" />
             <h2 className="text-xl font-semibold">Normal Tariff Active</h2>
           </div>
-          <p className="text-lg">(15:00–18:00 & 22:00–24:00)</p>
-          <p className="text-3xl font-bold mt-2">₹6.3 per unit</p>
+          <p className="text-lg">(15:00-18:00 & 22:00-24:00)</p>
+          <p className="text-3xl font-bold mt-2">Rs 6.3 per unit</p>
+          <p className="text-sm text-sky-100 mt-3">
+            Showing usage stats for {selectedDate?.dayLabel}, {selectedDate?.dateLabel}
+          </p>
+          {isLoading && (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-sky-100">
+              <span className="w-4 h-4 rounded-full border-2 border-sky-100 border-t-transparent animate-spin" />
+              Loading updated stats...
+            </div>
+          )}
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <StatCard title="Total Cost Saved" value="₹35,123" />
-          <StatCard title="Total Units Saved" value="540 kWh" />
-          <StatCard title="Morning Peak Hour" value="₹3,123" subtitle="160 kWh" />
-          <StatCard title="Evening Peak Hour" value="₹1,312" subtitle="60 kWh" />
+        <div className="relative">
+          {isLoading && (
+            <div className="absolute inset-0 z-10 bg-white/45 rounded-2xl flex items-center justify-center">
+              <div className="inline-flex items-center gap-2 glass-card rounded-lg px-3 py-2 text-sm text-slate-700 shadow-sm">
+                <span className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin" />
+                Updating usage data...
+              </div>
+            </div>
+          )}
+
+          <div className={isLoading ? 'pointer-events-none opacity-40 transition-opacity' : 'transition-opacity'}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+              <StatCard title="Total Cost Saved" value={`Rs ${stats.totalCostSaved.toLocaleString('en-IN')}`} />
+              <StatCard title="Total Units Saved" value={`${stats.totalUnitsSaved} kWh`} />
+              <StatCard
+                title="Morning Peak Hour"
+                value={`Rs ${stats.morningCost.toLocaleString('en-IN')}`}
+                subtitle={`${stats.morningUnits} kWh`}
+              />
+              <StatCard
+                title="Evening Peak Hour"
+                value={`Rs ${stats.eveningCost.toLocaleString('en-IN')}`}
+                subtitle={`${stats.eveningUnits} kWh`}
+              />
+            </div>
+
+            <div className="mb-8">
+              <TariffChart data={consumptionData} />
+            </div>
+          </div>
         </div>
 
-        {/* Consumption Chart */}
-        <div className="mb-8">
-          <TariffChart data={consumptionData} />
-        </div>
-
-        {/* Shift History Table */}
-        <ShiftHistoryTable data={shiftHistory} />
+        <ShiftHistoryTable
+          data={shiftHistory}
+          selectedDateKey={pendingDateKey ?? selectedDateKey}
+          onSelectDate={handleShiftDateSelect}
+        />
       </div>
     </div>
   );

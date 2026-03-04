@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { Navbar } from '../components/Navbar';
 import { StatCard } from '../components/StatCard';
 import { PieChartCard } from '../components/PieChartCard';
@@ -13,6 +14,7 @@ export function Overview() {
   const [activeTab, setActiveTab] = useState<TabType>('industrial');
   const [startDate, setStartDate] = useState(new Date('2025-12-27'));
   const [endDate, setEndDate] = useState(new Date('2026-01-25'));
+  const navigate = useNavigate();
 
   const handleDateChange = (newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
@@ -60,7 +62,7 @@ export function Overview() {
         { name: 'Others', value: getRandomData(12, 6, dateSeed + 'ot') },
       ];
 
-  const pieColors = ['#9333ea', '#3b82f6', '#10b981', '#f59e0b'];
+  const pieColors = ['#0ea5e9', '#14b8a6', '#f59e0b', '#2563eb'];
 
   // Peak Analytics Line Chart Data - all 24 hours with realistic pattern
   const basePattern = [200, 180, 170, 180, 220, 280, 380, 460, 520, 480, 420, 400, 380, 370, 380, 390, 410, 430, 450, 440, 410, 360, 300, 240];
@@ -71,8 +73,8 @@ export function Overview() {
   }));
 
   const lineChartLines = [
-    { key: 'withResponse', color: '#9333ea', name: 'With Response' },
-    { key: 'withoutResponse', color: '#3b82f6', name: 'Without Response' },
+    { key: 'withResponse', color: '#67e8f9', name: 'With Response' },
+    { key: 'withoutResponse', color: '#0ea5e9', name: 'Without Response' },
   ];
 
   // Daily Performance Bar Chart Data - varies by date
@@ -83,8 +85,8 @@ export function Overview() {
   }));
 
   const barChartBars = [
-    { key: 'dailyConsumption', color: '#3b82f6', name: 'Daily Consumption' },
-    { key: 'peakShifted', color: '#10b981', name: 'Peak Shifted' },
+    { key: 'dailyConsumption', color: '#67e8f9', name: 'Daily Consumption' },
+    { key: 'peakShifted', color: '#0ea5e9', name: 'Peak Shifted' },
   ];
 
   // Industrial Leaderboard Data - varies by date
@@ -106,12 +108,12 @@ export function Overview() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="dashboard-page">
       <Navbar />
       
-      <div className="max-w-[1440px] mx-auto px-8 py-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 relative z-10">
         {/* Stats Cards Row */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
           <StatCard title="Active Participants" value={currentStats.activeParticipants} />
           <StatCard title="Total Peak Units" value={`${currentStats.totalPeakUnits} kWh`} />
           <StatCard title="Shifted Peak Units" value={`${currentStats.shiftedPeakUnits} h`} />
@@ -119,24 +121,24 @@ export function Overview() {
         </div>
 
         {/* Tabs and Date Picker */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+          <div className="glass-card flex gap-2 rounded-full p-1.5 w-fit">
             <button
               onClick={() => setActiveTab('industrial')}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              className={`px-5 py-2 rounded-full font-semibold transition-all ${
                 activeTab === 'industrial'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'glass-pill-active'
+                  : 'glass-pill'
               }`}
             >
               Industrial
             </button>
             <button
               onClick={() => setActiveTab('commercial')}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              className={`px-5 py-2 rounded-full font-semibold transition-all ${
                 activeTab === 'commercial'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'glass-pill-active'
+                  : 'glass-pill'
               }`}
             >
               Commercial
@@ -151,7 +153,7 @@ export function Overview() {
         </div>
 
         {/* Energy Analytics Section */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
           <PieChartCard
             title="Types of Consumers"
             data={consumerTypesData}
@@ -168,22 +170,36 @@ export function Overview() {
             data={dailyPerformanceData}
             bars={barChartBars}
           />
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-center">
-            <p className="text-gray-400 text-lg">Reserved for Future Analytics</p>
+          <div className="glass-card rounded-2xl p-6 flex items-center justify-center">
+            <p className="text-slate-500 text-lg font-semibold">Reserved for Future Analytics</p>
           </div>
         </div>
 
         {/* Energy Leaderboards */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <LeaderboardTable
             title="Industrial Consumer Leaderboard"
             data={industrialLeaderboard}
-            onViewMore={() => alert('View more industrial consumers')}
+            onViewMore={() => navigate('/monitor?tab=industrial')}
+            onConsumerClick={(entry) => {
+              const query = new URLSearchParams({
+                consumerName: entry.consumerName,
+                category: 'INDUSTRY (GENERAL)-HT',
+              });
+              navigate(`/stats/${entry.serviceNo}?${query.toString()}`);
+            }}
           />
           <LeaderboardTable
             title="Commercial Consumer Leaderboard"
             data={commercialLeaderboard}
-            onViewMore={() => alert('View more commercial consumers')}
+            onViewMore={() => navigate('/monitor?tab=commercial')}
+            onConsumerClick={(entry) => {
+              const query = new URLSearchParams({
+                consumerName: entry.consumerName,
+                category: 'COMMERCIAL-HT',
+              });
+              navigate(`/stats/${entry.serviceNo}?${query.toString()}`);
+            }}
           />
         </div>
       </div>
