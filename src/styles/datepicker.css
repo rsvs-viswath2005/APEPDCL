@@ -1,0 +1,105 @@
+/* Custom styles for react-day-picker */
+.date-picker-custom {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: #6366f1;
+  --rdp-background-color: #e0e7ff;
+  font-family: inherit;
+}
+
+.date-picker-custom .rdp-months {
+  display: flex;
+  gap: 2rem;
+}
+
+.date-picker-custom .rdp-month {
+  margin: 0;
+}
+
+.date-picker-custom .rdp-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.date-picker-custom .rdp-caption_label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.date-picker-custom .rdp-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.date-picker-custom .rdp-nav_button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.date-picker-custom .rdp-nav_button:hover {
+  background-color: #f3f4f6;
+}
+
+.date-picker-custom .rdp-head_cell {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.date-picker-custom .rdp-cell {
+  padding: 2px;
+}
+
+.date-picker-custom .rdp-day {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.date-picker-custom .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
+  background-color: #f3f4f6;
+}
+
+.date-picker-custom .rdp-day_selected {
+  background-color: #6366f1;
+  color: white;
+  font-weight: 600;
+}
+
+.date-picker-custom .rdp-day_selected:hover {
+  background-color: #4f46e5;
+}
+
+.date-picker-custom .rdp-day_today:not(.rdp-day_selected) {
+  font-weight: 600;
+  color: #6366f1;
+  background-color: #e0e7ff;
+}
+
+.date-picker-custom .rdp-day_outside {
+  color: #d1d5db;
+}
+
+.date-picker-custom .rdp-day_disabled {
+  color: #d1d5db;
+  opacity: 0.5;
+}
+
+.date-picker-custom .rdp-day_range_start,
+.date-picker-custom .rdp-day_range_end {
+  background-color: #6366f1;
+  color: white;
+}
+
+.date-picker-custom .rdp-day_range_middle {
+  background-color: #e0e7ff;
+  color: #6366f1;
+}
