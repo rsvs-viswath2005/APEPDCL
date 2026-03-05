@@ -75,7 +75,7 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
           <Bar 
             dataKey="dailyConsumption" 
             stackId="a" 
-            fill="#67e8f9"
+            fill="#1fc7b6"
             radius={[0, 0, 0, 0]}
           >
             <LabelList 
@@ -86,7 +86,7 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
           <Bar 
             dataKey="peakShifted" 
             stackId="a" 
-            fill="#0ea5e9"
+            fill="#6f47c7"
             radius={[8, 8, 0, 0]}
           >
             <LabelList 
@@ -101,11 +101,11 @@ export function BarChartCard({ title, data, bars }: BarChartCardProps) {
       
       <div className="flex items-center justify-center gap-8 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#67e8f9] rounded"></div>
+          <div className="w-12 h-3 bg-[#1fc7b6] rounded"></div>
           <span className="text-sm text-slate-600">Daily consumption %</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#0ea5e9] rounded"></div>
+          <div className="w-12 h-3 bg-[#6f47c7] rounded"></div>
           <span className="text-sm text-slate-600">Peak Shifted %</span>
         </div>
       </div>

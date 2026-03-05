@@ -24,12 +24,12 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
         <LineChart data={data} margin={{ top: 40, right: 20, left: 0, bottom: 20 }}>
           <defs>
             <linearGradient id="colorWithResponse" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#67e8f9" stopOpacity={0.35}/>
-              <stop offset="95%" stopColor="#67e8f9" stopOpacity={0.08}/>
+              <stop offset="5%" stopColor="#1fc7b6" stopOpacity={0.35}/>
+              <stop offset="95%" stopColor="#1fc7b6" stopOpacity={0.08}/>
             </linearGradient>
             <linearGradient id="colorWithoutResponse" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.34}/>
-              <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.08}/>
+              <stop offset="5%" stopColor="#6f47c7" stopOpacity={0.34}/>
+              <stop offset="95%" stopColor="#6f47c7" stopOpacity={0.08}/>
             </linearGradient>
           </defs>
           
@@ -49,16 +49,16 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
           <Tooltip />
           
           {/* AM Peak Shaded Area */}
-          <ReferenceArea x1="06" x2="09" fill="#67e8f9" fillOpacity={0.25} />
+          <ReferenceArea x1="06" x2="09" fill="#1fc7b6" fillOpacity={0.18} />
           
           {/* PM Peak Shaded Area */}
-          <ReferenceArea x1="18" x2="21" fill="#67e8f9" fillOpacity={0.25} />
+          <ReferenceArea x1="18" x2="21" fill="#1fc7b6" fillOpacity={0.18} />
           
           {/* AM Peak Label */}
           <text x="25%" y="15%" textAnchor="middle" className="text-xs fill-gray-600">
             AM Peak
           </text>
-          <text x="25%" y="20%" textAnchor="middle" className="text-lg font-bold fill-red-500">
+          <text x="25%" y="20%" textAnchor="middle" className="text-lg font-bold fill-violet-600">
             {amPeakMax.toFixed(1)} MW
           </text>
           <text x="25%" y="25%" textAnchor="middle" className="text-xs fill-gray-500">
@@ -78,7 +78,7 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
           <text x="70%" y="15%" textAnchor="middle" className="text-xs fill-gray-600">
             PM Peak
           </text>
-          <text x="70%" y="20%" textAnchor="middle" className="text-lg font-bold fill-red-500">
+          <text x="70%" y="20%" textAnchor="middle" className="text-lg font-bold fill-violet-600">
             {pmPeakMax.toFixed(1)} MW
           </text>
           <text x="70%" y="25%" textAnchor="middle" className="text-xs fill-gray-500">
@@ -97,7 +97,7 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
           <Line
             type="monotone"
             dataKey="withResponse"
-            stroke="#67e8f9"
+            stroke="#1fc7b6"
             strokeWidth={3}
             dot={false}
             name="With Response"
@@ -105,7 +105,7 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
           <Line
             type="monotone"
             dataKey="withoutResponse"
-            stroke="#0ea5e9"
+            stroke="#6f47c7"
             strokeWidth={3}
             dot={false}
             name="Without Response"
@@ -115,11 +115,11 @@ export function LineChartCard({ title, data, lines }: LineChartCardProps) {
       
       <div className="flex items-center justify-center gap-8 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#67e8f9] rounded"></div>
+          <div className="w-12 h-3 bg-[#1fc7b6] rounded"></div>
           <span className="text-sm text-slate-600">With Response</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-12 h-3 bg-[#0ea5e9] rounded"></div>
+          <div className="w-12 h-3 bg-[#6f47c7] rounded"></div>
           <span className="text-sm text-slate-600">Without Response</span>
         </div>
       </div>

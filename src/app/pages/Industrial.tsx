@@ -44,12 +44,12 @@ export function Monitor() {
     <div className="dashboard-page">
       <Navbar />
       
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 relative z-10">
-        <div className="glass-card rounded-full p-1.5 inline-flex gap-2 mb-5">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-2 sm:py-3 relative z-10">
+        <div className="glass-card rounded-full p-1 inline-flex gap-1.5 mb-2">
           <button
             type="button"
             onClick={() => setActiveTab('commercial')}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+            className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
               activeTab === 'commercial'
                 ? 'glass-pill-active'
                 : 'glass-pill'
@@ -60,7 +60,7 @@ export function Monitor() {
           <button
             type="button"
             onClick={() => setActiveTab('industrial')}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+            className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
               activeTab === 'industrial'
                 ? 'glass-pill-active'
                 : 'glass-pill'

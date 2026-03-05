@@ -27,6 +27,8 @@ export function Tariff() {
   const [searchParams] = useSearchParams();
   const consumerName = searchParams.get('consumerName') ?? `Consumer ${serviceNo}`;
   const category = searchParams.get('category') ?? 'NA';
+  const [startDate, setStartDate] = useState(() => new Date());
+  const [endDate, setEndDate] = useState(() => new Date());
   const [selectedDateKey, setSelectedDateKey] = useState(() => formatDateKey(new Date()));
   const [isLoading, setIsLoading] = useState(false);
   const [pendingDateKey, setPendingDateKey] = useState<string | null>(null);
@@ -41,34 +43,45 @@ export function Tariff() {
     };
   }, []);
 
-  const handleShiftDateSelect = (dateKey: string) => {
-    if (isLoading || dateKey === selectedDateKey) return;
+  const applyDateSelection = (nextStartDate: Date, nextEndDate: Date, nextDateKey: string) => {
+    if (isLoading) return;
 
     headerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setIsLoading(true);
-    setPendingDateKey(dateKey);
+    setPendingDateKey(nextDateKey);
 
     if (loaderTimeoutRef.current) {
       window.clearTimeout(loaderTimeoutRef.current);
     }
 
     loaderTimeoutRef.current = window.setTimeout(() => {
-      setSelectedDateKey(dateKey);
+      setStartDate(nextStartDate);
+      setEndDate(nextEndDate);
+      setSelectedDateKey(nextDateKey);
       setPendingDateKey(null);
       setIsLoading(false);
-    }, 450);
+    }, 320);
+  };
+
+  const handleShiftDateSelect = (dateKey: string) => {
+    if (dateKey === selectedDateKey) return;
+    const selected = new Date(`${dateKey}T00:00:00`);
+    applyDateSelection(selected, selected, dateKey);
   };
 
   const selectedDate = useMemo(() => {
-    const date = new Date(`${selectedDateKey}T00:00:00`);
+    const startLabel = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    const endLabel = endDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
     return {
-      dayLabel: date.toLocaleDateString('en-IN', { weekday: 'short' }),
-      dateLabel: date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+      startLabel,
+      endLabel,
+      dayLabel: endDate.toLocaleDateString('en-IN', { weekday: 'short' }),
+      rangeLabel: startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`,
     };
-  }, [selectedDateKey]);
+  }, [startDate, endDate]);
 
   const stats = useMemo(() => {
-    const seedBase = `${serviceNo}-${selectedDateKey}`;
+    const seedBase = `${serviceNo}-${formatDateKey(startDate)}-${formatDateKey(endDate)}`;
     const totalUnitsSaved = Math.round(seededNumber(`${seedBase}-total-units`, 420, 980));
     const totalCostSaved = Math.round(seededNumber(`${seedBase}-total-cost`, 14000, 55000));
     const morningUnits = Math.round(totalUnitsSaved * seededNumber(`${seedBase}-morning`, 0.24, 0.38));
@@ -84,10 +97,10 @@ export function Tariff() {
       morningCost,
       eveningCost,
     };
-  }, [selectedDateKey, serviceNo]);
+  }, [startDate, endDate, serviceNo]);
 
   const consumptionData = useMemo(() => {
-    const seedBase = `${serviceNo}-${selectedDateKey}`;
+    const seedBase = `${serviceNo}-${formatDateKey(startDate)}-${formatDateKey(endDate)}`;
     const peakBoost = seededNumber(`${seedBase}-peak`, 8, 18);
     const dayBias = seededNumber(`${seedBase}-bias`, -4, 4);
 
@@ -115,14 +128,14 @@ export function Tariff() {
 
       return { hour, baseline, actual };
     });
-  }, [selectedDateKey, serviceNo]);
+  }, [startDate, endDate, serviceNo]);
 
   const shiftHistory = useMemo<ShiftEntry[]>(() => {
-    const today = new Date();
+    const anchor = new Date(endDate);
 
     return Array.from({ length: 7 }, (_, index) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - index);
+      const date = new Date(anchor);
+      date.setDate(anchor.getDate() - index);
       const dateKey = formatDateKey(date);
       const seedBase = `${serviceNo}-${dateKey}-shift`;
       const hour = Math.round(seededNumber(`${seedBase}-hour`, 6, 20));
@@ -141,31 +154,38 @@ export function Tariff() {
         points,
       };
     });
-  }, [serviceNo]);
+  }, [endDate, serviceNo]);
 
   return (
     <div className="dashboard-page">
       <Navbar />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 relative z-10">
-        <div ref={headerRef} className="glass-hero rounded-2xl p-6 mb-8 text-white">
-          <p className="text-sm md:text-base text-sky-100">Welcome</p>
-          <h1 className="text-2xl md:text-3xl font-bold mt-1">{consumerName}</h1>
-          <p className="text-sm md:text-base text-sky-100 mt-1">
-            Service No: {serviceNo} | Category: {category}
-          </p>
-          <div className="flex items-center gap-3 mt-5 mb-2">
-            <Clock className="w-6 h-6" />
-            <h2 className="text-xl font-semibold">Normal Tariff Active</h2>
+      <div className="w-full px-2 sm:px-3 lg:px-4 py-2 sm:py-3 relative z-10">
+        <div ref={headerRef} className="glass-hero rounded-2xl p-3 sm:p-4 mb-3 text-white">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs sm:text-sm text-sky-100">Welcome</p>
+              <h1 className="text-lg sm:text-2xl font-bold mt-0.5 leading-tight">{consumerName}</h1>
+              <p className="text-xs sm:text-sm text-sky-100 mt-0.5">
+                Service No: {serviceNo} | Category: {category}
+              </p>
+              <p className="text-xs sm:text-sm text-sky-100 mt-1">
+                Showing usage stats for {selectedDate.dayLabel}, {selectedDate.rangeLabel}
+              </p>
+            </div>
+            <div className="glass-card rounded-xl p-2.5 sm:p-3">
+              <div className="flex items-center gap-2 mb-1 text-slate-900">
+                <Clock className="w-4 h-4" />
+                <h2 className="text-sm sm:text-base font-bold">Normal Tariff Active</h2>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700">(15:00-18:00 & 22:00-24:00)</p>
+              <p className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">Rs 6.3 per unit</p>
+            </div>
           </div>
-          <p className="text-lg">(15:00-18:00 & 22:00-24:00)</p>
-          <p className="text-3xl font-bold mt-2">Rs 6.3 per unit</p>
-          <p className="text-sm text-sky-100 mt-3">
-            Showing usage stats for {selectedDate?.dayLabel}, {selectedDate?.dateLabel}
-          </p>
+
           {isLoading && (
-            <div className="mt-3 inline-flex items-center gap-2 text-sm text-sky-100">
-              <span className="w-4 h-4 rounded-full border-2 border-sky-100 border-t-transparent animate-spin" />
+            <div className="mt-2 inline-flex items-center gap-2 text-xs sm:text-sm text-sky-100">
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-sky-100 border-t-transparent animate-spin" />
               Loading updated stats...
             </div>
           )}
@@ -182,32 +202,35 @@ export function Tariff() {
           )}
 
           <div className={isLoading ? 'pointer-events-none opacity-40 transition-opacity' : 'transition-opacity'}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-              <StatCard title="Total Cost Saved" value={`Rs ${stats.totalCostSaved.toLocaleString('en-IN')}`} />
-              <StatCard title="Total Units Saved" value={`${stats.totalUnitsSaved} kWh`} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3 mb-3">
+              <StatCard compact title="Total Cost Saved" value={`Rs ${stats.totalCostSaved.toLocaleString('en-IN')}`} />
+              <StatCard compact title="Total Units Saved" value={`${stats.totalUnitsSaved} kWh`} />
               <StatCard
+                compact
                 title="Morning Peak Hour"
                 value={`Rs ${stats.morningCost.toLocaleString('en-IN')}`}
                 subtitle={`${stats.morningUnits} kWh`}
               />
               <StatCard
+                compact
                 title="Evening Peak Hour"
                 value={`Rs ${stats.eveningCost.toLocaleString('en-IN')}`}
                 subtitle={`${stats.eveningUnits} kWh`}
               />
             </div>
 
-            <div className="mb-8">
-              <TariffChart data={consumptionData} />
+            <div className="grid grid-cols-1 xl:grid-cols-[1.65fr_0.85fr] gap-3 items-start">
+              <TariffChart data={consumptionData} height={285} />
+              <ShiftHistoryTable
+                data={shiftHistory}
+                selectedDateKey={pendingDateKey ?? selectedDateKey}
+                onSelectDate={handleShiftDateSelect}
+                compact
+                maxBodyHeightClassName="max-h-[360px]"
+              />
             </div>
           </div>
         </div>
-
-        <ShiftHistoryTable
-          data={shiftHistory}
-          selectedDateKey={pendingDateKey ?? selectedDateKey}
-          onSelectDate={handleShiftDateSelect}
-        />
       </div>
     </div>
   );

@@ -8,10 +8,10 @@ import { BarChartCard } from '../components/BarChartCard';
 import { LeaderboardTable } from '../components/LeaderboardTable';
 import { DateRangePicker } from '../components/DateRangePicker';
 
-type TabType = 'industrial' | 'commercial';
+type TabType = 'all' | 'industrial' | 'commercial';
 
 export function Overview() {
-  const [activeTab, setActiveTab] = useState<TabType>('industrial');
+  const [activeTab, setActiveTab] = useState<TabType>('all');
   const [startDate, setStartDate] = useState(new Date('2025-12-27'));
   const [endDate, setEndDate] = useState(new Date('2026-01-25'));
   const navigate = useNavigate();
@@ -31,6 +31,12 @@ export function Overview() {
 
   // Stats data that changes based on tab and date
   const statsData = {
+    all: {
+      activeParticipants: getRandomData(5943, 900, dateSeed + 'ap'),
+      totalPeakUnits: getRandomData(94822.20, 8500, dateSeed + 'tpu').toFixed(2),
+      shiftedPeakUnits: getRandomData(7402.0, 900, dateSeed + 'spu').toFixed(1),
+      participationRate: getRandomData(69, 14, dateSeed + 'pr'),
+    },
     industrial: {
       activeParticipants: getRandomData(2798, 500, dateSeed + 'ap'),
       totalPeakUnits: getRandomData(43587.70, 5000, dateSeed + 'tpu').toFixed(2),
@@ -48,7 +54,14 @@ export function Overview() {
   const currentStats = statsData[activeTab];
 
   // Pie Chart Data - varies by tab
-  const consumerTypesData = activeTab === 'industrial' 
+  const consumerTypesData = activeTab === 'all'
+    ? [
+        { name: 'Industrial', value: getRandomData(46, 10, dateSeed + 'all-i') },
+        { name: 'Commercial', value: getRandomData(40, 10, dateSeed + 'all-c') },
+        { name: 'Public', value: getRandomData(8, 5, dateSeed + 'all-p') },
+        { name: 'Others', value: getRandomData(6, 4, dateSeed + 'all-o') },
+      ]
+    : activeTab === 'industrial' 
     ? [
         { name: 'Manufacturing', value: getRandomData(36, 10, dateSeed + 'm') },
         { name: 'Agro', value: getRandomData(34, 10, dateSeed + 'a') },
@@ -62,7 +75,7 @@ export function Overview() {
         { name: 'Others', value: getRandomData(12, 6, dateSeed + 'ot') },
       ];
 
-  const pieColors = ['#0ea5e9', '#14b8a6', '#f59e0b', '#2563eb'];
+  const pieColors = ['#1fc7b6', '#6f47c7', '#1fc7b6', '#6f47c7'];
 
   // Peak Analytics Line Chart Data - all 24 hours with realistic pattern
   const basePattern = [200, 180, 170, 180, 220, 280, 380, 460, 520, 480, 420, 400, 380, 370, 380, 390, 410, 430, 450, 440, 410, 360, 300, 240];
@@ -73,8 +86,8 @@ export function Overview() {
   }));
 
   const lineChartLines = [
-    { key: 'withResponse', color: '#67e8f9', name: 'With Response' },
-    { key: 'withoutResponse', color: '#0ea5e9', name: 'Without Response' },
+    { key: 'withResponse', color: '#1fc7b6', name: 'With Response' },
+    { key: 'withoutResponse', color: '#6f47c7', name: 'Without Response' },
   ];
 
   // Daily Performance Bar Chart Data - varies by date
@@ -85,8 +98,8 @@ export function Overview() {
   }));
 
   const barChartBars = [
-    { key: 'dailyConsumption', color: '#67e8f9', name: 'Daily Consumption' },
-    { key: 'peakShifted', color: '#0ea5e9', name: 'Peak Shifted' },
+    { key: 'dailyConsumption', color: '#1fc7b6', name: 'Daily Consumption' },
+    { key: 'peakShifted', color: '#6f47c7', name: 'Peak Shifted' },
   ];
 
   // Industrial Leaderboard Data - varies by date
@@ -111,18 +124,28 @@ export function Overview() {
     <div className="dashboard-page">
       <Navbar />
       
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-2 sm:py-3 relative z-10">
         {/* Stats Cards Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          <StatCard title="Active Participants" value={currentStats.activeParticipants} />
-          <StatCard title="Total Peak Units" value={`${currentStats.totalPeakUnits} kWh`} />
-          <StatCard title="Shifted Peak Units" value={`${currentStats.shiftedPeakUnits} h`} />
-          <StatCard title="Participation Rate" value={`${currentStats.participationRate}%`} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3 mb-2">
+          <StatCard compact title="Active Participants" value={currentStats.activeParticipants} />
+          <StatCard compact title="Total Peak Units" value={`${currentStats.totalPeakUnits} kWh`} />
+          <StatCard compact title="Shifted Peak Units" value={`${currentStats.shiftedPeakUnits} h`} />
+          <StatCard compact title="Participation Rate" value={`${currentStats.participationRate}%`} />
         </div>
 
         {/* Tabs and Date Picker */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 mb-3">
           <div className="glass-card flex gap-2 rounded-full p-1.5 w-fit">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`px-5 py-2 rounded-full font-semibold transition-all ${
+                activeTab === 'all'
+                  ? 'glass-pill-active'
+                  : 'glass-pill'
+              }`}
+            >
+              All
+            </button>
             <button
               onClick={() => setActiveTab('industrial')}
               className={`px-5 py-2 rounded-full font-semibold transition-all ${
@@ -153,7 +176,7 @@ export function Overview() {
         </div>
 
         {/* Energy Analytics Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3">
           <PieChartCard
             title="Types of Consumers"
             data={consumerTypesData}
@@ -170,13 +193,13 @@ export function Overview() {
             data={dailyPerformanceData}
             bars={barChartBars}
           />
-          <div className="glass-card rounded-2xl p-6 flex items-center justify-center">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-center">
             <p className="text-slate-500 text-lg font-semibold">Reserved for Future Analytics</p>
           </div>
         </div>
 
         {/* Energy Leaderboards */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
           <LeaderboardTable
             title="Industrial Consumer Leaderboard"
             data={industrialLeaderboard}

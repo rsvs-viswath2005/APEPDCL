@@ -21,6 +21,7 @@ const districts = ['VZM', 'AKP', 'VSP', 'ELR', 'EDG'] as const;
 export function ConsumerTable({ data, activeTab, onConsumerClick }: ConsumerTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [district, setDistrict] = useState<string>('ALL');
+  const [activePage, setActivePage] = useState(1);
 
   const filteredData = data.filter((item) => {
     const matchesSearch = item.serviceNo.toLowerCase().includes(searchTerm.toLowerCase());
@@ -31,26 +32,26 @@ export function ConsumerTable({ data, activeTab, onConsumerClick }: ConsumerTabl
   });
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-4">
+    <div className="glass-card rounded-2xl p-3 sm:p-4">
+      <div className="mb-3">
+        <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mb-2">
           {activeTab === 'industrial' ? 'Industrial' : 'Commercial'} Consumer List
         </h2>
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col md:flex-row gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search by Service No"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="glass-input w-full pl-10 pr-4 py-2.5"
+              className="glass-input w-full pl-9 pr-3 py-1.5 text-sm"
             />
           </div>
           <select
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
-            className="glass-select min-w-[180px] px-3 py-2.5"
+            className="glass-select min-w-[150px] px-2.5 py-1.5 text-sm"
           >
             <option value="ALL">All Districts</option>
             {districts.map((districtCode) => (
@@ -66,16 +67,16 @@ export function ConsumerTable({ data, activeTab, onConsumerClick }: ConsumerTabl
         <table className="w-full glass-table">
           <thead>
             <tr className="border-b border-slate-200/70">
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">S.No</th>
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">Service No</th>
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">Consumer Name</th>
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">Category</th>
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">Contracted Demand</th>
-              <th className="text-left py-3 px-4 text-xs sm:text-sm font-bold text-slate-700">HT Income</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">S.No</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">Service No</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">Consumer Name</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">Category</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">Contracted Demand</th>
+              <th className="text-left py-2 px-3 text-[11px] sm:text-xs font-bold text-slate-700">HT Income</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((entry) => (
+            {filteredData.map((entry, index) => (
               <tr
                 key={entry.sno}
                 className={`border-b border-slate-200/45 transition-colors ${
@@ -92,24 +93,26 @@ export function ConsumerTable({ data, activeTab, onConsumerClick }: ConsumerTabl
                 role={onConsumerClick ? 'button' : undefined}
                 tabIndex={onConsumerClick ? 0 : undefined}
               >
-                <td className="py-3 px-4 text-sm text-slate-700">{entry.sno}</td>
-                <td className="py-3 px-4 text-sm font-semibold text-sky-700">{entry.serviceNo}</td>
-                <td className="py-3 px-4 text-sm text-slate-900">{entry.consumerName}</td>
-                <td className="py-3 px-4 text-sm text-slate-700">{entry.category}</td>
-                <td className="py-3 px-4 text-sm text-slate-700">{entry.contractedDemand}</td>
-                <td className="py-3 px-4 text-sm text-slate-700">{entry.htIncome}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm text-slate-700">{index + 1}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm font-semibold text-sky-700">{entry.serviceNo}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm text-slate-900">{entry.consumerName}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm text-slate-700">{entry.category}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm text-slate-700">{entry.contractedDemand}</td>
+                <td className="py-1.5 px-3 text-xs sm:text-sm text-slate-700">{entry.htIncome}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="flex justify-center gap-2 mt-6">
+      <div className="flex justify-center gap-1.5 mt-2">
         {[1, 2, 3, 4, 5].map((page) => (
           <button
             key={page}
-            className={`glass-pill px-3 py-1 text-sm ${
-              page === 1
+            type="button"
+            onClick={() => setActivePage(page)}
+            className={`glass-pill px-2.5 py-0.5 text-xs sm:text-sm ${
+              page === activePage
                 ? 'glass-pill-active'
                 : ''
             }`}
@@ -117,8 +120,12 @@ export function ConsumerTable({ data, activeTab, onConsumerClick }: ConsumerTabl
             {page}
           </button>
         ))}
-        <span className="px-3 py-1 text-slate-500">...</span>
-        <button className="glass-pill px-3 py-1 text-sm">
+        <span className="px-2 py-0.5 text-slate-500 text-xs sm:text-sm">...</span>
+        <button
+          type="button"
+          onClick={() => setActivePage(28)}
+          className={`glass-pill px-2.5 py-0.5 text-xs sm:text-sm ${activePage === 28 ? 'glass-pill-active' : ''}`}
+        >
           28
         </button>
       </div>

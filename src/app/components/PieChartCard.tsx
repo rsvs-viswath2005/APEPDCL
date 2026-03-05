@@ -20,7 +20,7 @@ export function PieChartCard({ title, data, colors, centerText }: PieChartCardPr
             labelLine={false}
             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
             outerRadius={80}
-            fill="#8884d8"
+            fill="#6f47c7"
             dataKey="value"
           >
             {data.map((entry, index) => (
